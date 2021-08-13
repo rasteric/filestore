@@ -1,0 +1,4 @@
+package filestore
+
+type Filestore struct {
+}

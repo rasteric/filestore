@@ -3,9 +3,13 @@ a versioning local file storage system that avoids copying files
 
 A local filestore allows you to copy files to a storage location on harddisk, keep track of changes manually (under your control), and retrieve older versions of files that have been stored. It stores unmodified copies and remembers metadata in an Sqlite3 database with FTS search.
 
+## Usage
+
+Not available yet. This package is in early alpha state and ought not be used.
+
 ## Dependencies
 
-Filestore uses the non-standard Sqlite3 driver github.com/bvinc/go-sqlite-lite/sqlite3 and this will not change. You probably shouldn't use it if you use another Sqlite driver. I use bvinc's driver in my own projects because it has many advantages over standard DB drivers, but the disadvantage is that standard dependency injection will not make much sense.
+Filestore uses sqlite3 with the driver by mattn and this will not change. You probably shouldn't use it if you use another Sqlite driver.
 
 ## Implementation
 

@@ -391,7 +391,7 @@ func buildTerm(column string, word string) string {
 		column, word, column, word, column, word, column, word)
 }
 
-var safeReplacer = strings.NewReplacer("'", "", "%", "", ";", "\"", "", "\\", "")
+var safeReplacer = strings.NewReplacer("'", "", "%", "", ";", "", "\"", "", "\\", "")
 
 var metaphoneEncoder = &metaphone3.Encoder{}
 

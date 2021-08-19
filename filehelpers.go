@@ -39,7 +39,7 @@ func asDirectoryPath(path string) string {
 
 // copyFile copies file src to dst. If dst already exists, it is truncated and overwritten.
 // If useCompression is true, then the file data is compressed using Zlib.
-func copyFile(src, dst string, useCompression bool) error {
+func copyFile(src, dst string, useCompression, restore bool) error {
 	fin, err := os.Open(src)
 	if err != nil {
 		return err
@@ -53,6 +53,16 @@ func copyFile(src, dst string, useCompression bool) error {
 	defer fout.Close()
 
 	if useCompression {
+		if restore {
+			// restoring means that we have to decompress
+			csrc := snappy.NewReader(fin)
+			_, err = io.Copy(fout, csrc)
+			if err != nil {
+				return err
+			}
+			return nil
+		}
+		// not restoring, so compress the src to dst
 		cdst := snappy.NewWriter(fout)
 		defer cdst.Close()
 		_, err = io.Copy(cdst, fin)
@@ -61,6 +71,7 @@ func copyFile(src, dst string, useCompression bool) error {
 		}
 		return nil
 	}
+	// no compression, just copy from src to dst
 	_, err = io.Copy(fout, fin)
 	return err
 }

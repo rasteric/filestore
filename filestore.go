@@ -90,15 +90,15 @@ func (fs *Filestore) Open() error {
 	if err != nil {
 		return fs.dbError(err)
 	}
-	fs.getVersionStmt, err = fs.db.Prepare("select version_id, path, info, fuzzy, version, date, checksum from Versions inner join Files on Versions.file=Files.files_id where Versions.path=? order by Versions.date desc limit 1;")
+	fs.getVersionStmt, err = fs.db.Prepare("select version_id, path, info, fuzzy, version, date, checksum from Versions inner join Files on Versions.file=Files.file_id where Versions.path=? order by Versions.date desc limit 1;")
 	if err != nil {
 		return fs.dbError(err)
 	}
-	fs.getVersionsStmt, err = fs.db.Prepare("select version_id, path, info, fuzzy, version, date, checksum from Versions inner join Files on Versions.file=Files.files_id where Versions.path=? order by Versions.date desc limit ?;")
+	fs.getVersionsStmt, err = fs.db.Prepare("select version_id, path, info, fuzzy, version, date, checksum from Versions inner join Files on Versions.file=Files.file_id where Versions.path=? order by Versions.date desc limit ?;")
 	if err != nil {
 		return fs.dbError(err)
 	}
-	fs.getVersionsAfterStmt, err = fs.db.Prepare("select version_id, path, info, fuzzy, version, date, checksum from Versions inner join Files on Versions.file=Files.files_id where Versions.path=? and Versions.date > ? order by Versions.date desc limit ?;")
+	fs.getVersionsAfterStmt, err = fs.db.Prepare("select version_id, path, info, fuzzy, version, date, checksum from Versions inner join Files on Versions.file=Files.file_id where Versions.path=? and Versions.date > ? order by Versions.date desc limit ?;")
 	if err != nil {
 		return fs.dbError(err)
 	}
@@ -346,7 +346,7 @@ func (fs *Filestore) SimpleSearch(words []string, limit int) ([]FileVersion, err
 		term += " or "
 		term += buildTerm("version", word)
 	}
-	rows, err := fs.db.Query("select version_id, path, info, fuzzy, version, date, checksum from Versions inner join Files on Versions.file=Files.files_id where "+term+" order by date limit ?;", limit)
+	rows, err := fs.db.Query("select version_id, path, info, fuzzy, version, date, checksum from Versions inner join Files on Versions.file=Files.file_id where "+term+" order by date limit ?;", limit)
 	if err != nil {
 		return nil, err
 	}
@@ -366,7 +366,7 @@ func (fs *Filestore) search(term string, limit int, fuzzy bool) ([]FileVersion, 
 		column = "info"
 		term2 = term
 	}
-	rows, err := fs.db.Query("select version_id, path, info, fuzzy, version, date, checksum from VersionsFts inner join Files on Versions.file=Files.files_id where "+column+" match ("+term2+") or version match ("+term+") or date match ("+term+") limit ? order by rank;", limit)
+	rows, err := fs.db.Query("select version_id, path, info, fuzzy, version, date, checksum from VersionsFts inner join Files on Versions.file=Files.file_id where "+column+" match ("+term2+") or version match ("+term+") or date match ("+term+") limit ? order by rank;", limit)
 	if err != nil {
 		return nil, err
 	}

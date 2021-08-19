@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/dlclark/metaphone3"
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/rasteric/flags"
 	"golang.org/x/crypto/blake2b"
 )

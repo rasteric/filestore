@@ -227,7 +227,7 @@ func (fs *Filestore) Has(file string) bool {
 		return false
 	}
 	var exists bool
-	err := fs.hasVersionStmt.QueryRow(file).Scan(&exists)
+	err := fs.hasVersionStmt.QueryRow(filepath.ToSlash(file)).Scan(&exists)
 	if err != nil {
 		return false
 	}
@@ -253,7 +253,8 @@ func (fs *Filestore) Get(path string) (FileVersion, error) {
 	if fs.db == nil {
 		return FileVersion{}, ErrNotOpen
 	}
-	row := fs.getVersionStmt.QueryRow(path)
+	slashPath := filepath.ToSlash(path)
+	row := fs.getVersionStmt.QueryRow(slashPath)
 	v := FileVersion{}
 	var timeStr string
 	if err := row.Scan(&v.ID, &v.Path, &v.Info, &v.Fuzzy, &v.Version, &timeStr, &v.Checksum); err != nil {
@@ -261,7 +262,7 @@ func (fs *Filestore) Get(path string) (FileVersion, error) {
 	}
 	var err error
 	v.Name = filepath.Base(path)
-	v.Path = filepath.FromSlash(v.Path)
+	//	v.Path = filepath.FromSlash(v.Path)
 	v.From, err = parseDBDate(timeStr)
 	if err != nil {
 		return FileVersion{}, ErrInvalidDate

@@ -355,6 +355,8 @@ func (fs *Filestore) SimpleSearch(words []string, limit int) ([]FileVersion, err
 }
 
 // search performs an FTS5 term search on the database directly. If fuzzy is true, the fuzzy info field is searched.
+// Warning: Search terms are not escaped! To escape them, individual terms in a query
+// must be put into double quotes and each double quote in a term must be turned into two double quotes "".
 func (fs *Filestore) search(term string, limit int, fuzzy bool) ([]FileVersion, error) {
 	if fs.db == nil {
 		return nil, ErrNotOpen
@@ -367,7 +369,7 @@ func (fs *Filestore) search(term string, limit int, fuzzy bool) ([]FileVersion, 
 		column = "info"
 		term2 = term
 	}
-	rows, err := fs.db.Query("select version_id, path, info, fuzzy, version, date, checksum from VersionsFts inner join Files on VersionsFts.file=Files.file_id where "+column+" match ? or version match ? or date match ? order by rank limit ?;", fts5Escape(term2), fts5Escape(term), fts5Escape(term), limit)
+	rows, err := fs.db.Query("select version_id, path, info, fuzzy, version, date, checksum from VersionsFts inner join Files on VersionsFts.file=Files.file_id where "+column+" match ? or version match ? or date match ? order by rank limit ?;", term2, term, term, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -375,13 +377,15 @@ func (fs *Filestore) search(term string, limit int, fuzzy bool) ([]FileVersion, 
 }
 
 // Search performs an FTS5 term search on the database directly. This requires some knowledge of the database
-// organization and FTS5 queries.
+// organization and FTS5 queries. Warning: Search terms are not escaped! To escape them, individual terms in a query
+// must be put into double quotes and each double quote in a term must be turned into two double quotes "".
 func (fs *Filestore) Search(term string, limit int) ([]FileVersion, error) {
 	return fs.search(term, limit, false)
 }
 
 // FuzzySearch performs an FTS5 term search on the database directly. This requires some knowledge of the database
-// organization and FTS5 queries.
+// organization and FTS5 queries. Warning: Search terms are not escaped! To escape them, individual terms in a query
+// must be put into double quotes and each double quote in a term must be turned into two double quotes "".
 func (fs *Filestore) FuzzySearch(term string, limit int) ([]FileVersion, error) {
 	return fs.search(term, limit, true)
 }

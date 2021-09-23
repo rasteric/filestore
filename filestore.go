@@ -193,7 +193,7 @@ func (fs *Filestore) addVersion(path, info, version, check string) error {
 			return fs.dbError(err)
 		}
 	}
-	_, err = fs.insertVersionStmt.Exec(slashPath, info, encodeMetaphone(info), version, fileID)
+	_, err = fs.insertVersionStmt.Exec(slashPath, info, EncodeMetaphone(info), version, fileID)
 	return err
 }
 
@@ -364,7 +364,7 @@ func (fs *Filestore) search(term string, limit int, fuzzy bool) ([]FileVersion, 
 	var column, term2 string
 	if fuzzy {
 		column = "fuzzy"
-		term2 = encodeMetaphone(term)
+		term2 = EncodeMetaphone(term)
 	} else {
 		column = "info"
 		term2 = term
@@ -401,8 +401,8 @@ var safeReplacer = strings.NewReplacer("'", "", "%", "", ";", "", "\"", "", "\\"
 
 var metaphoneEncoder = &metaphone3.Encoder{}
 
-// encodeMetaphone returns the primary metaphone version of text split up into words.
-func encodeMetaphone(text string) string {
+// EncodeMetaphone returns the primary metaphone version of text split up into words.
+func EncodeMetaphone(text string) string {
 	// text = strings.ToUpper(text)
 	s := strings.Fields(text)
 	m := make([]string, len(s))
@@ -413,7 +413,8 @@ func encodeMetaphone(text string) string {
 	return strings.Join(m, " ")
 }
 
-// fts5Escape escapes an FTS5 match query term in a safe way by enclosing it in quotes.
-func fts5Escape(term string) string {
+// FTS5Escape escapes an individual FTS5 match query term in a safe way by enclosing it in quotes and turning quotes
+// inside the term into sequences of two quotes. So, term"bla" is turned into "term""bla""", for instance.
+func FTS5Escape(term string) string {
 	return "\"" + strings.Replace(term, "\"", "\"\"", -1) + "\""
 }

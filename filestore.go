@@ -367,7 +367,7 @@ func (fs *Filestore) search(term string, limit int, fuzzy bool) ([]FileVersion, 
 		column = "info"
 		term2 = term
 	}
-	rows, err := fs.db.Query("select version_id, path, info, fuzzy, version, date, checksum from VersionsFts inner join Files on Versions.file=Files.file_id where "+column+" match ("+term2+") or version match ("+term+") or date match ("+term+") limit ? order by rank;", limit)
+	rows, err := fs.db.Query("select version_id, path, info, fuzzy, version, date, checksum from VersionsFts inner join Files on Versions.file=Files.file_id where "+column+" match '"+term2+"' or version match '"+term+"' or date match '"+term+"' limit ? order by rank;", limit)
 	if err != nil {
 		return nil, err
 	}

@@ -367,7 +367,7 @@ func (fs *Filestore) search(term string, limit int, fuzzy bool) ([]FileVersion, 
 		column = "info"
 		term2 = term
 	}
-	rows, err := fs.db.Query("select version_id, path, info, fuzzy, version, date, checksum from VersionsFts inner join Files on Versions.file=Files.file_id where "+column+" match '"+term2+"' or version match '"+term+"' or date match '"+term+"' limit ? order by rank;", limit)
+	rows, err := fs.db.Query("select version_id, path, info, fuzzy, version, date, checksum from VersionsFts inner join Files on Versions.file=Files.file_id where "+column+" match ? or version match ? or date match ? limit ? order by rank;", fts5Escape(term2), fts5Escape(term), fts5Escape(term), limit)
 	if err != nil {
 		return nil, err
 	}
@@ -407,4 +407,9 @@ func encodeMetaphone(text string) string {
 		m[i] = encoded
 	}
 	return strings.Join(m, " ")
+}
+
+// fts5Escape escapes an FTS5 match query term in a safe way by enclosing it in quotes.
+func fts5Escape(term string) string {
+	return "\"" + strings.Replace(term, "\"", "\"\"", -1) + "\""
 }

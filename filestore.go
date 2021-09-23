@@ -263,7 +263,7 @@ func (fs *Filestore) Get(path string) (FileVersion, error) {
 	var err error
 	v.Name = filepath.Base(path)
 	//	v.Path = filepath.FromSlash(v.Path)
-	v.From, err = parseDBDate(timeStr)
+	v.From, err = ParseDBDate(timeStr)
 	if err != nil {
 		return FileVersion{}, ErrInvalidDate
 	}
@@ -309,7 +309,7 @@ func (fs *Filestore) getVersions(rows *sql.Rows) ([]FileVersion, error) {
 		v.Path = filepath.FromSlash(v.Path)
 		v.Name = filepath.Base(v.Path)
 		var err error
-		v.From, err = parseDBDate(timeStr)
+		v.From, err = ParseDBDate(timeStr)
 		if err != nil {
 			return nil, ErrInvalidDate
 		}
@@ -325,7 +325,7 @@ func (fs *Filestore) VersionsAfter(path string, after time.Time, limit int) ([]F
 	if fs.db == nil {
 		return nil, ErrNotOpen
 	}
-	rows, err := fs.getVersionsAfterStmt.Query(path, toDBDate(after), limit)
+	rows, err := fs.getVersionsAfterStmt.Query(path, ToDBDate(after), limit)
 	if err != nil {
 		return nil, fs.dbError(err)
 	}
@@ -361,15 +361,13 @@ func (fs *Filestore) search(term string, limit int, fuzzy bool) ([]FileVersion, 
 	if fs.db == nil {
 		return nil, ErrNotOpen
 	}
-	var column, term2 string
+	var column string
 	if fuzzy {
 		column = "fuzzy"
-		term2 = EncodeMetaphone(term)
 	} else {
 		column = "info"
-		term2 = term
 	}
-	rows, err := fs.db.Query("select version_id, path, info, fuzzy, version, date, checksum from VersionsFts inner join Files on VersionsFts.file=Files.file_id where "+column+" match ? or version match ? or date match ? order by rank limit ?;", term2, term, term, limit)
+	rows, err := fs.db.Query("select version_id, path, info, fuzzy, version, date, checksum from VersionsFts inner join Files on VersionsFts.file=Files.file_id where "+column+" match ? or version match ? or date match ? order by date limit ?;", term, term, term, limit)
 	if err != nil {
 		return nil, err
 	}

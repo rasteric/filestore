@@ -276,7 +276,11 @@ func (fs *Filestore) Restore(version FileVersion, dst string) error {
 	useCompression := flags.Has(fs.Options, Compress)
 	dst = asDirectoryPath(dst)
 	dstFile := dst + version.Name
-	srcFile := fs.localPath(version.Name, version.Checksum)
+	srcFileName := version.Name
+	if useCompression {
+		srcFileName += ".snappy"
+	}
+	srcFile := fs.localPath(srcFileName, version.Checksum)
 	return copyFile(srcFile, dstFile, useCompression, true)
 }
 
@@ -361,7 +365,7 @@ func (fs *Filestore) search(term string, limit int) ([]FileVersion, error) {
 	if fs.db == nil {
 		return nil, ErrNotOpen
 	}
-	rows, err := fs.db.Query("select version_id, path, info, fuzzy, version, date, checksum from VersionsFts inner join Files on VersionsFts.file=Files.file_id where VersionsFts match ? order by date limit ?;", term, limit)
+	rows, err := fs.db.Query("select version_id, path, info, fuzzy, version, date, checksum from VersionsFts inner join Files on VersionsFts.file=Files.file_id where VersionsFts match ? order by date,rank limit ?;", term, limit)
 	if err != nil {
 		return nil, err
 	}

@@ -287,7 +287,7 @@ func (fs *Filestore) Restore(version FileVersion, dst string) error {
 // RestoreAtSource restores the version into the original source destination path from which
 // it was created. If a file already exists at this place (normally the case), it will be overwritten.
 func (fs *Filestore) RestoreAtSource(version FileVersion) error {
-	return fs.Restore(version, version.Path)
+	return fs.Restore(version, filepath.Dir(filepath.FromSlash(version.Path)))
 }
 
 // Versions returns FileVersion entries for all versions of a file. Nil is returned if there are no versions.
